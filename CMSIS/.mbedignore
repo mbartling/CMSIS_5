@@ -1,0 +1,11 @@
+Core/*
+Core_A/*
+CoreValidation/*
+DAP/*
+Documentation/*
+DoxyGen/*
+Driver/*
+Pack/*
+RTOS/*
+RTOS2/*
+Utilities/*

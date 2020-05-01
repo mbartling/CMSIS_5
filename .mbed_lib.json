@@ -1,0 +1,4 @@
+{
+    "name": "cmsis5",
+    "macros": ["TARGET_MBED"]
+}
