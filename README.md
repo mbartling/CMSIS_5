@@ -2,7 +2,7 @@
 This is a fork of the offial Arm CMSIS 5 project that is now Mbed importable. You can just add the following `cmsis5.lib` file to your project and run mbed deploy!
 
 ```
-https://github.com/mbartling/CMSIS_5.git#b4edeb0ec409770551a68058b6177fd292b0a316
+https://github.com/mbartling/CMSIS_5.git#3b04fe07a1bfb25804e7107e347624ac78f5f183
 ```
 
 # CMSIS Version 5
