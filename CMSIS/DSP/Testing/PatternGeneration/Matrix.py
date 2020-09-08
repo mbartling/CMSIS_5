@@ -14,9 +14,9 @@ def cartesian(*somelists):
 # Those patterns are used for tests and benchmarks.
 # For tests, there is the need to add tests for saturation
 
-NBA = 40
-NBI = 40
-NBB = 40
+NBA = 47
+NBI = 47
+NBB = 47
 
 def randComplex(nb):
     data = np.random.randn(2*nb)
@@ -45,6 +45,7 @@ def writeBinaryTests(config,format):
     config.writeInput(1, data1,"InputA")
     config.writeInput(1, data2,"InputB")
 
+
     config.writeInput(1, asReal(data1C),"InputAC")
     config.writeInput(1, asReal(data2C),"InputBC")
 
@@ -71,6 +72,8 @@ def writeBinaryTests(config,format):
        r = list(r.reshape(a*c))
        vals = vals + r
     config.writeReference(1, vals,"RefMul")
+
+   
 
     vals=[] 
     for (a,b,c) in binarySizes:
@@ -592,15 +595,32 @@ def getInvertibleMatrix(d):
 def writeUnaryTests(config,format):
     # For benchmarks
     NBSAMPLES=NBA*NBB
+    NBVECSAMPLES = NBB
 
     data1=np.random.randn(NBSAMPLES)
     data1 = Tools.normalize(data1)
+    if format == Tools.Q7:
+       data1 = data1 / 4.0
+
+    data1C=randComplex(NBSAMPLES)
+
+    if format == Tools.Q7:
+       data1C = data1C / 4.0
 
     data2=np.random.randn(NBSAMPLES)
-    data2 = Tools.normalize(data2)
+    data2 = Tools.normalize(data2) 
+
+    vecdata=np.random.randn(NBVECSAMPLES)
+    vecdata = Tools.normalize(vecdata)
+    if format == Tools.Q7:
+       vecdata = vecdata / 4.0
+
 
     config.writeInput(1, data1,"InputA")
+    config.writeInput(1, asReal(data1C),"InputAC")
+
     config.writeInput(1, data2,"InputB")
+    config.writeInput(1, vecdata,"InputVec")
 
     # For tests
     NA=[1,2,3,4,Tools.loopnb(format,Tools.TAILONLY),
@@ -625,6 +645,15 @@ def writeUnaryTests(config,format):
        vals = vals + r
     config.writeReference(1, vals,"RefAdd")
 
+    vals=[] 
+    for (a,b) in unarySizes:
+       ma = np.copy(data1[0:a*b]).reshape(a,b)
+       v = np.copy(vecdata[0:b])
+       r = ma.dot(v)
+       r = list(r.reshape(a))
+       vals = vals + r
+    config.writeReference(1, vals,"RefVecMul")
+
     vals = []
     for (a,b) in unarySizes:
        ma = np.copy(data1[0:a*b]).reshape(a,b)
@@ -644,6 +673,14 @@ def writeUnaryTests(config,format):
 
     vals = []
     for (a,b) in unarySizes:
+       ma = np.copy(data1C[0:a*b]).reshape(a,b)
+       r = np.transpose(ma)
+       r = list(asReal(r.reshape(a*b)))
+       vals = vals + r
+    config.writeReference(1, vals,"RefTransposeC")
+
+    vals = []
+    for (a,b) in unarySizes:
        ma = np.copy(data1[0:a*b]).reshape(a,b)
        r = ma * 0.5
        r = list(r.reshape(a*b))
@@ -652,7 +689,12 @@ def writeUnaryTests(config,format):
 
     # Current algo is not very accurate for big matrix.
     # But big matrix required to check the vectorized code.
-    dims=[1,2,3,4,7,8,9,15,16,17,32,33]
+    if format==Tools.F16:
+       # Size limited for f16 because accuracy is
+       # not good at all for bigger matrices
+       dims=[1,2,3,4,7,8,9,15,16]
+    else:
+       dims=[1,2,3,4,7,8,9,15,16,17,32,33]
 
     vals = []
     inp=[]
@@ -679,28 +721,37 @@ def generatePatterns():
     PARAMBINDIR = os.path.join("Parameters","DSP","Matrix","Binary","Binary")
     
     configBinaryf32=Tools.Config(PATTERNBINDIR,PARAMBINDIR,"f32")
+    configBinaryf16=Tools.Config(PATTERNBINDIR,PARAMBINDIR,"f16")
     configBinaryq31=Tools.Config(PATTERNBINDIR,PARAMBINDIR,"q31")
     configBinaryq15=Tools.Config(PATTERNBINDIR,PARAMBINDIR,"q15")
+    configBinaryq7=Tools.Config(PATTERNBINDIR,PARAMBINDIR,"q7")
+
     
     
-    
-    writeBinaryTests(configBinaryf32,0)
-    writeBinaryTests(configBinaryq31,31)
-    writeBinaryTests(configBinaryq15,15)
+    writeBinaryTests(configBinaryf32,Tools.F32)
+    writeBinaryTests(configBinaryf16,Tools.F16)
+    writeBinaryTests(configBinaryq31,Tools.Q31)
+    writeBinaryTests(configBinaryq15,Tools.Q15)
+    writeBinaryTests(configBinaryq7,Tools.Q7)
     
     PATTERNUNDIR = os.path.join("Patterns","DSP","Matrix","Unary","Unary")
     PARAMUNDIR = os.path.join("Parameters","DSP","Matrix","Unary","Unary")
     
     configUnaryf64=Tools.Config(PATTERNUNDIR,PARAMUNDIR,"f64")
     configUnaryf32=Tools.Config(PATTERNUNDIR,PARAMUNDIR,"f32")
+    configUnaryf16=Tools.Config(PATTERNUNDIR,PARAMUNDIR,"f16")
     configUnaryq31=Tools.Config(PATTERNUNDIR,PARAMUNDIR,"q31")
     configUnaryq15=Tools.Config(PATTERNUNDIR,PARAMUNDIR,"q15")
+    configUnaryq7=Tools.Config(PATTERNUNDIR,PARAMUNDIR,"q7")
     
     
-    writeUnaryTests(configUnaryf64,0)
-    writeUnaryTests(configUnaryf32,0)
-    writeUnaryTests(configUnaryq31,31)
-    writeUnaryTests(configUnaryq15,15)
+    writeUnaryTests(configUnaryf64,Tools.F64)
+    writeUnaryTests(configUnaryf32,Tools.F32)
+    writeUnaryTests(configUnaryf16,Tools.F16)
+    writeUnaryTests(configUnaryq31,Tools.Q31)
+    writeUnaryTests(configUnaryq31,Tools.Q31)
+    writeUnaryTests(configUnaryq15,Tools.Q15)
+    writeUnaryTests(configUnaryq7,Tools.Q7)
 
 if __name__ == '__main__':
   generatePatterns()

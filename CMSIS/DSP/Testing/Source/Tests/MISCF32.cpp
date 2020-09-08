@@ -1,7 +1,6 @@
 #include "MISCF32.h"
 #include <stdio.h>
 #include "Error.h"
-#include "arm_math.h"
 #include "arm_vec_math.h"
 #include "Test.h"
 
@@ -49,6 +48,7 @@ a double precision computation.
   
     void MISCF32::setUp(Testing::testID_t id,std::vector<Testing::param_t>& paramsArgs,Client::PatternMgr *mgr)
     {
+        (void)paramsArgs;
         switch(id)
         {
 
@@ -704,6 +704,7 @@ a double precision computation.
 
     void MISCF32::tearDown(Testing::testID_t id,Client::PatternMgr *mgr)
     {
+      (void)id;
       output.dump(mgr);
       
     }

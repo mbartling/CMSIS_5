@@ -10,6 +10,14 @@
 static __ALIGNED(8) q7_t coeffArray[32];
 #endif 
 
+void checkInnerTail(q7_t *b)
+{
+    ASSERT_TRUE(b[0] == 0);
+    ASSERT_TRUE(b[1] == 0);
+    ASSERT_TRUE(b[2] == 0);
+    ASSERT_TRUE(b[3] == 0);
+}
+
     void FIRQ7::test_fir_q7()
     {
         
@@ -22,7 +30,7 @@ static __ALIGNED(8) q7_t coeffArray[32];
         const q7_t *inputp = inputs.ptr();
         q7_t *outp = output.ptr();
 
-        int i;
+        unsigned long i;
 #if defined(ARM_MATH_MVEI)
         int j;
 #endif
@@ -79,10 +87,12 @@ static __ALIGNED(8) q7_t coeffArray[32];
            */
            arm_fir_q7(&this->S,inputp,outp,blockSize);
            outp += blockSize;
+           checkInnerTail(outp);
 
            inputp += blockSize;
            arm_fir_q7(&this->S,inputp,outp,blockSize);
            outp += blockSize;
+           checkInnerTail(outp);
 
            configp += 2;
            orgcoefsp += numTaps;
@@ -101,7 +111,7 @@ static __ALIGNED(8) q7_t coeffArray[32];
     void FIRQ7::setUp(Testing::testID_t id,std::vector<Testing::param_t>& params,Client::PatternMgr *mgr)
     {
       
-       
+       (void)params;
        switch(id)
        {
         case FIRQ7::TEST_FIR_Q7_1:
@@ -123,5 +133,6 @@ static __ALIGNED(8) q7_t coeffArray[32];
 
     void FIRQ7::tearDown(Testing::testID_t id,Client::PatternMgr *mgr)
     {
+        (void)id;
         output.dump(mgr);
     }

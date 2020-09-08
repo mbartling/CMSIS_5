@@ -16,6 +16,14 @@ a double precision computation.
 static __ALIGNED(8) float32_t coeffArray[32];
 #endif 
 
+void checkInnerTail(float32_t *b)
+{
+    ASSERT_TRUE(b[0] == 0.0f);
+    ASSERT_TRUE(b[1] == 0.0f);
+    ASSERT_TRUE(b[2] == 0.0f);
+    ASSERT_TRUE(b[3] == 0.0f);
+}
+
     void FIRF32::test_fir_f32()
     {
         
@@ -28,7 +36,7 @@ static __ALIGNED(8) float32_t coeffArray[32];
         const float32_t *inputp = inputs.ptr();
         float32_t *outp = output.ptr();
 
-        int i;
+        unsigned long i;
 #if defined(ARM_MATH_MVEF) && !defined(ARM_MATH_AUTOVECTORIZE)
         int j;
 #endif
@@ -88,10 +96,12 @@ static __ALIGNED(8) float32_t coeffArray[32];
 
            arm_fir_f32(&this->S,inputp,outp,blockSize);
            outp += blockSize;
+           checkInnerTail(outp);
            
            inputp += blockSize;
            arm_fir_f32(&this->S,inputp,outp,blockSize);
            outp += blockSize;
+           checkInnerTail(outp);
 
            configp += 2;
            orgcoefsp += numTaps;
@@ -111,7 +121,7 @@ static __ALIGNED(8) float32_t coeffArray[32];
     void FIRF32::setUp(Testing::testID_t id,std::vector<Testing::param_t>& params,Client::PatternMgr *mgr)
     {
       
-
+       (void)params;
        
        switch(id)
        {
@@ -133,5 +143,6 @@ static __ALIGNED(8) float32_t coeffArray[32];
 
     void FIRF32::tearDown(Testing::testID_t id,Client::PatternMgr *mgr)
     {
+        (void)id;
         output.dump(mgr);
     }

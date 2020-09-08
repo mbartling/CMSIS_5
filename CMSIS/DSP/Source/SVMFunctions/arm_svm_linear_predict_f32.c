@@ -24,13 +24,13 @@
  * limitations under the License.
  */
 
-#include "arm_math.h"
+#include "dsp/svm_functions.h"
 #include <limits.h>
 #include <math.h>
 
 
 /**
- * @addtogroup groupSVM
+ * @addtogroup linearsvm
  * @{
  */
 
@@ -449,5 +449,5 @@ void arm_svm_linear_predict_f32(
 #endif /* defined(ARM_MATH_MVEF) && !defined(ARM_MATH_AUTOVECTORIZE) */
 
 /**
- * @} end of groupSVM group
+ * @} end of linearsvm group
  */
